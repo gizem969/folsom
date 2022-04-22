@@ -44,6 +44,8 @@ public class AsciiResponse {
     OK,
     STATS,
     EMPTY_LIST,
-    ERROR
+    ERROR,
+    SERVER_ERROR,
+    CLIENT_ERROR
   }
 }

@@ -215,6 +215,27 @@ public class AsciiMemcacheDecoder extends ByteToMessageDecoder {
           expect(firstChar, "NOT_STORED");
           out.add(AsciiResponse.NOT_STORED);
           return;
+        } else if (tokenLength == 12) {
+          final ErrorAsciiResponse errorAsciiResponse;
+          if (firstChar == 'C') {
+            expect(firstChar, "CLIENT_ERROR");
+            errorAsciiResponse = new ClientErrorAsciiResponse();
+          } else {
+            expect(firstChar, "SERVER_ERROR");
+            errorAsciiResponse = new ServerErrorAsciiResponse();
+          }
+          // CLIENT_ERROR <error>\r\n
+          // OR
+          // SERVER_ERROR <error>\r\n
+          int errorMessageLen = line.remaining();
+          if (errorMessageLen <= 0) {
+            throw fail();
+          }
+          byte[] errorMessage = new byte[errorMessageLen];
+          line.get(errorMessage);
+          errorAsciiResponse.setErrorMessage(new String(errorMessage, charset));
+          out.add(errorAsciiResponse);
+          return;
         } else {
           throw fail();
         }

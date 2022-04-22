@@ -158,6 +158,14 @@ public class SetRequest extends AsciiRequest<MemcacheStatus>
           succeed(MemcacheStatus.KEY_NOT_FOUND);
         }
         return;
+      case CLIENT_ERROR:
+      case SERVER_ERROR:
+        if (!(response instanceof ErrorAsciiResponse)) {
+          throw new IOException("Unexpected response type: " + response.type);
+        }
+        final ErrorAsciiResponse errorAsciiResponse = (ErrorAsciiResponse) response;
+        fail(new IOException(errorAsciiResponse.getErrorMessage()), server);
+        return;
       default:
         throw new IOException("Unexpected line: " + response.type);
     }
